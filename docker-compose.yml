@@ -2,3 +2,16 @@ version: '3'
 services:
   main:
     build: .
+
+  label:
+    build:
+      context: .
+      dockerfile: labelImg.Dockerfile
+    user: 1000:1000
+    working_dir: /custom_data
+    environment:
+     - DISPLAY=$DISPLAY
+     - QT_X11_NO_MITSHM=1
+    volumes:
+      - './custom_data:/custom_data'
+      - '/tmp/.X11-unix:/tmp/.X11-unix'
