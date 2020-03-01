@@ -19,11 +19,16 @@ RUN shuf images.txt | split -a1 -d -l $(( $(wc -l <images.txt) * 80 / 100 )) - i
 RUN mv images0 train.txt && mv images1 test.txt
 RUN cat train.txt
 RUN mkdir -p backup
-RUN /darknet/darknet detector train detector.data /darknet/cfg/yolov3.cfg /darknet/yolov3.weights
-RUN /darknet/darknet detector test detector.data /darknet/cfg/yolov3.cfg backup/yolov3_final.weights images/alysha-rosly-2I3zN5tve4Q-unsplash.jpg
+RUN /darknet/darknet detector train detector.data custom.cfg /darknet/yolov3.weights
+RUN cd /darknet && ./darknet detector test /custom_data/detector.data /custom_data/custom.cfg /custom_data/backup/custom_final.weights /custom_data/test.jpg
 
 FROM python:3.7
-COPY . /app
 WORKDIR /app
-#RUN pip install -r requirements.txt
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY main.py /app
+COPY --from=trainer /custom_data/custom.cfg .
+COPY --from=trainer /custom_data/custom.names .
+COPY --from=trainer /custom_data/backup/custom_final.weights .
+COPY --from=trainer /custom_data/test.jpg .
 CMD ["python", "main.py"]
